@@ -81,6 +81,19 @@
                 <version>6.1.0.Final</version>
             </dependency>
 
+            <!--  HTTPClient -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>4.5.6</version>
+            </dependency>
+
             <!-- MySQL 连接驱动依赖 -->
             <dependency>
                 <groupId>mysql</groupId>
@@ -139,6 +152,11 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-mail</artifactId>
+                <version>2.0.4.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-mongodb</artifactId>
                 <version>2.0.4.RELEASE</version>
             </dependency>
             <dependency>

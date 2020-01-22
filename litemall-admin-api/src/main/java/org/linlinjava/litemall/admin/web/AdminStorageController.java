@@ -1,7 +1,14 @@
 package org.linlinjava.litemall.admin.web;
 
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.storage.StorageService;
@@ -15,16 +22,26 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.HttpPost;
 
+
+/**
+ * 允许所有域名访问
+ */
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/admin/storage")
 @Validated
 public class AdminStorageController {
     private final Log logger = LogFactory.getLog(AdminStorageController.class);
+
+    private static final String FAR_SERVICE_DIR = "http://47.111.112.220:8090/upload";
 
     @Autowired
     private StorageService storageService;
@@ -48,8 +65,9 @@ public class AdminStorageController {
     @PostMapping("/create")
     public Object create(@RequestParam("file") MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
+        String path = returnFileStr(file);
         LitemallStorage litemallStorage = storageService.store(file.getInputStream(), file.getSize(),
-                file.getContentType(), originalFilename);
+                file.getContentType(), originalFilename,path);
         return ResponseUtil.ok(litemallStorage);
     }
 
@@ -85,5 +103,30 @@ public class AdminStorageController {
         litemallStorageService.deleteByKey(key);
         storageService.delete(key);
         return ResponseUtil.ok();
+    }
+
+    private String returnFileStr(MultipartFile file) throws IOException {
+        InputStream ins = null;
+        String response = "";
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            final HttpPost postMethod = new HttpPost(FAR_SERVICE_DIR);
+            ins = file.getInputStream();
+            HttpEntity reqEntity = MultipartEntityBuilder.create()
+                                            .setCharset(Charset.forName("UTF-8"))
+                                            .addBinaryBody("file", ins,ContentType.DEFAULT_TEXT,file.getOriginalFilename())
+                                            .build();
+            postMethod.setEntity(reqEntity);
+            CloseableHttpResponse res = httpClient.execute(postMethod);
+            response = "https:"+EntityUtils.toString(res.getEntity(),"UTF-8");
+            logger.error("response----->{}"+response);
+        } catch (Exception  e) {
+            e.printStackTrace();
+        }finally {
+            if(ins!=null){
+                ins.close();
+            }
+        }
+        return response;
     }
 }

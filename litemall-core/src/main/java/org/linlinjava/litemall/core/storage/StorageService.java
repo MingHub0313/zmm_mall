@@ -59,6 +59,30 @@ public class StorageService {
         return storageInfo;
     }
 
+    /**
+     * 存储一个文件对象
+     * @param inputStream
+     * @param contentLength
+     * @param contentType
+     * @param fileName
+     * @param path
+     * @return
+     */
+    public LitemallStorage store(InputStream inputStream, long contentLength, String contentType, String fileName,String path ) {
+        String key = generateKey(fileName);
+        // 去除 存储本地的图片管理
+        //storage.store(inputStream, contentLength, contentType, key);
+
+        LitemallStorage storageInfo = new LitemallStorage();
+        storageInfo.setUrl(path);
+        storageInfo.setName(fileName);
+        storageInfo.setSize((int) contentLength);
+        storageInfo.setType(contentType);
+        storageInfo.setKey(key);
+        litemallStorageService.add(storageInfo);
+        return storageInfo;
+    }
+
     private String generateKey(String originalFilename) {
         int index = originalFilename.lastIndexOf('.');
         String suffix = originalFilename.substring(index);
