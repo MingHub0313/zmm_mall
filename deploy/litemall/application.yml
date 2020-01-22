@@ -23,7 +23,7 @@ spring:
       filters:  stat,wall
 
 server:
-  port: 8080
+  port: 9090
 
 logging:
   config: classpath:logback-spring.xml
